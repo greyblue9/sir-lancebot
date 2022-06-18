@@ -75,12 +75,13 @@ class ConvoStarters(commands.Cog):
         user_is_moderator = any(role.id in MODERATION_ROLES for role in getattr(user, "roles", []))
         user_is_invoker = user.id == command_invoker.id
 
-        is_right_reaction = all((
-            reaction.message.id == message.id,
-            str(reaction.emoji) == "🔄",
-            user_is_moderator or user_is_invoker
-        ))
-        return is_right_reaction
+        return all(
+            (
+                reaction.message.id == message.id,
+                str(reaction.emoji) == "🔄",
+                user_is_moderator or user_is_invoker,
+            )
+        )
 
     async def _listen_for_refresh(
         self,

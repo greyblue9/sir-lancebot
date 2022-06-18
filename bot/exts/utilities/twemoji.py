@@ -78,9 +78,7 @@ class Twemoji(commands.Cog):
         such as "🇸🇪" and "👨‍👩‍👦", send the component emojis through the method
         one at a time.
         """
-        if emoji is None:
-            return None
-        return hex(ord(emoji)).removeprefix("0x")
+        return None if emoji is None else hex(ord(emoji)).removeprefix("0x")
 
     @staticmethod
     def trim_code(codepoint: Optional[str]) -> Optional[str]:
@@ -132,7 +130,7 @@ class Twemoji(commands.Cog):
     @whitelist_override(roles=(Roles.everyone,))
     async def twemoji(self, ctx: commands.Context, *raw_emoji: str) -> None:
         """Sends a preview of a given Twemoji, specified by codepoint or emoji."""
-        if len(raw_emoji) == 0:
+        if not raw_emoji:
             await invoke_help_command(ctx)
             return
         try:

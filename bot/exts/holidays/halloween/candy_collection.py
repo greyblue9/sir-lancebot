@@ -188,10 +188,14 @@ class CandyCollection(commands.Cog):
             ) if top_five else "No Candies"
 
         def get_user_candy_score() -> str:
-            for user_id, score in records:
-                if user_id == ctx.author.id:
-                    return f"{ctx.author.mention}: {score}"
-            return f"{ctx.author.mention}: 0"
+            return next(
+                (
+                    f"{ctx.author.mention}: {score}"
+                    for user_id, score in records
+                    if user_id == ctx.author.id
+                ),
+                f"{ctx.author.mention}: 0",
+            )
 
         e = discord.Embed(colour=discord.Colour.og_blurple())
         e.add_field(

@@ -69,7 +69,10 @@ class LinePaginator(Paginator):
         If `empty` is True, an empty line will be placed after the a given `line`.
         """
         if len(line) > self.max_size - len(self.prefix) - 2:
-            raise RuntimeError("Line exceeds maximum page size %s" % (self.max_size - len(self.prefix) - 2))
+            raise RuntimeError(
+                f"Line exceeds maximum page size {self.max_size - len(self.prefix) - 2}"
+            )
+
 
         if self.max_lines is not None:
             if self._linecount >= self.max_lines:
@@ -294,10 +297,7 @@ class ImagePaginator(Paginator):
 
         If `empty` is True, an empty line will be placed after a given `line`.
         """
-        if line:
-            self._count = len(line)
-        else:
-            self._count = 0
+        self._count = len(line) if line else 0
         self._current_page.append(line)
         self.close_page()
 

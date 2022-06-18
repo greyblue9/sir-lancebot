@@ -53,7 +53,12 @@ class XKCD(Cog):
             await ctx.send(embed=embed)
             return
 
-        comic = randint(1, self.latest_comic_info["num"]) if comic is None else comic.group(0)
+        comic = (
+            randint(1, self.latest_comic_info["num"])
+            if comic is None
+            else comic[0]
+        )
+
 
         if comic == "latest":
             info = self.latest_comic_info

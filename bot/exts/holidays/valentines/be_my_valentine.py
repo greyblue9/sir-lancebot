@@ -126,10 +126,10 @@ class BeMyValentine(commands.Cog):
         if valentine_type is None:
             return self.random_valentine()
 
-        elif valentine_type.lower() in ["p", "poem"]:
+        elif valentine_type.lower() in {"p", "poem"}:
             return self.valentine_poem(), "A poem dedicated to"
 
-        elif valentine_type.lower() in ["c", "compliment"]:
+        elif valentine_type.lower() in {"c", "compliment"}:
             return self.valentine_compliment(), "A compliment for"
 
         else:

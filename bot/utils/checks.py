@@ -151,8 +151,7 @@ def cooldown_with_role_bypass(rate: int, per: float, type: BucketType = BucketTy
         # Cooldown logic, taken from discord.py internals.
         current = ctx.message.created_at.replace(tzinfo=datetime.timezone.utc).timestamp()
         bucket = buckets.get_bucket(ctx.message)
-        retry_after = bucket.update_rate_limit(current)
-        if retry_after:
+        if retry_after := bucket.update_rate_limit(current):
             raise CommandOnCooldown(bucket, retry_after)
 
     def wrapper(command: Command) -> Command:

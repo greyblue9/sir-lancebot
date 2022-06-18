@@ -52,9 +52,7 @@ class BunnyNameGenerator(commands.Cog):
         """Adds a suffix to the end of the Discord name."""
         extensions = ["foot", "ear", "nose", "tail"]
         suffix = random.choice(extensions)
-        appended_name = displayname + suffix
-
-        return appended_name
+        return displayname + suffix
 
     @commands.command()
     async def bunnyname(self, ctx: commands.Context) -> None:

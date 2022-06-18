@@ -114,8 +114,7 @@ class HelpSession:
 
     def _get_query(self, query: str) -> Union[Command, Cog]:
         """Attempts to match the provided query with a valid command or cog."""
-        command = self._bot.get_command(query)
-        if command:
+        if command := self._bot.get_command(query):
             return command
 
         # Find all cog categories that match.
@@ -168,9 +167,8 @@ class HelpSession:
     def reset_timeout(self) -> None:
         """Cancels the original timeout task and sets it again from the start."""
         # cancel original if it exists
-        if self._timeout_task:
-            if not self._timeout_task.cancelled():
-                self._timeout_task.cancel()
+        if self._timeout_task and not self._timeout_task.cancelled():
+            self._timeout_task.cancel()
 
         # recreate the timeout task
         self._timeout_task = self._bot.loop.create_task(self.timeout())
@@ -193,9 +191,7 @@ class HelpSession:
 
         self.reset_timeout()
 
-        # Run relevant action method
-        action = getattr(self, f"do_{REACTIONS[emoji]}", None)
-        if action:
+        if action := getattr(self, f"do_{REACTIONS[emoji]}", None):
             await action()
 
         # remove the added reaction to prep for re-use
@@ -234,16 +230,12 @@ class HelpSession:
 
         A zero width space is used as a prefix for results with no cogs to force them last in ordering.
         """
-        if cmd.cog:
-            try:
-                if cmd.cog.category:
-                    return f"**{cmd.cog.category}**"
-            except AttributeError:
-                pass
-
-            return f"**{cmd.cog_name}**"
-        else:
+        if not cmd.cog:
             return "**\u200bNo Category:**"
+        with suppress(AttributeError):
+            if cmd.cog.category:
+                return f"**{cmd.cog.category}**"
+        return f"**{cmd.cog_name}**"
 
     def _get_command_params(self, cmd: Command) -> str:
         """
@@ -304,22 +296,26 @@ class HelpSession:
         prefix = constants.Client.prefix
 
         signature = self._get_command_params(self.query)
-        parent = self.query.full_parent_name + " " if self.query.parent else ""
+        parent = f"{self.query.full_parent_name} " if self.query.parent else ""
         paginator.add_line(f"**```\n{prefix}{parent}{signature}\n```**")
-        aliases = [f"`{alias}`" if not parent else f"`{parent} {alias}`" for alias in self.query.aliases]
+        aliases = [
+            f"`{parent} {alias}`" if parent else f"`{alias}`"
+            for alias in self.query.aliases
+        ]
+
         aliases += [f"`{alias}`" for alias in getattr(self.query, "root_aliases", ())]
-        aliases = ", ".join(sorted(aliases))
-        if aliases:
+        if aliases := ", ".join(sorted(aliases)):
             paginator.add_line(f"**Can also use:** {aliases}\n")
         if not await self.query.can_run(self._ctx):
             paginator.add_line("***You cannot run this command.***\n")
 
     async def _list_child_commands(self, paginator: LinePaginator) -> None:
         # remove hidden commands if session is not wanting hiddens
-        if not self._show_hidden:
-            filtered = [c for c in self.query.commands if not c.hidden]
-        else:
-            filtered = self.query.commands
+        filtered = (
+            self.query.commands
+            if self._show_hidden
+            else [c for c in self.query.commands if not c.hidden]
+        )
 
         # if after filter there are no commands, finish up
         if not filtered:

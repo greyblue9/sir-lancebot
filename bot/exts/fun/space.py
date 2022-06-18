@@ -214,17 +214,18 @@ class Space(Cog):
 
         # Add additional parameters to request parameters only when they provided by user
         if additional_params is not None:
-            params.update(additional_params)
+            params |= additional_params
 
         async with self.http_session.get(url=f"{base}/{endpoint}?{urlencode(params)}") as resp:
             return await resp.json()
 
     def create_nasa_embed(self, title: str, description: str, image: str, footer: Optional[str] = "") -> Embed:
         """Generate NASA commands embeds. Required: title, description and image URL, footer (addition) is optional."""
-        return Embed(
-            title=title,
-            description=description
-        ).set_image(url=image).set_footer(text="Powered by NASA API" + footer)
+        return (
+            Embed(title=title, description=description)
+            .set_image(url=image)
+            .set_footer(text=f"Powered by NASA API{footer}")
+        )
 
 
 def setup(bot: Bot) -> None:

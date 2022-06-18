@@ -58,14 +58,12 @@ class Emojis(commands.Cog):
             color=Colours.soft_red,
             title=random.choice(ERROR_REPLIES)
         )
-        msg = []
-
         emoji_dict = defaultdict(list)
         for emoji in emojis:
             emoji_dict[emoji.name.split("_")[0]].append(emoji)
 
         error_comp = ", ".join(emoji_dict)
-        msg.append(f"These are the valid emoji categories:\n```\n{error_comp}\n```")
+        msg = [f"These are the valid emoji categories:\n```\n{error_comp}\n```"]
         return embed, msg
 
     @commands.group(name="emoji", invoke_without_command=True)

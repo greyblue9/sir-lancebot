@@ -45,12 +45,11 @@ class CheatSheet(commands.Cog):
         If the cht.sh search returned 404, overwrite it to send a custom error embed.
         link -> https://github.com/chubin/cheat.sh/issues/198
         """
-        embed = Embed(
+        return Embed(
             title=random.choice(ERROR_REPLIES),
             description=ERROR_MESSAGE,
-            colour=Colours.soft_red
+            colour=Colours.soft_red,
         )
-        return embed
 
     def result_fmt(self, url: str, body_text: str) -> tuple[bool, Union[str, Embed]]:
         """Format Result."""

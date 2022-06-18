@@ -61,7 +61,7 @@ class InternalEval(commands.Cog):
         - Shorten the output on any whitespace character
         - Shorten the output solely on character count
         """
-        max_length = max_length - len(placeholder)
+        max_length -= len(placeholder)
 
         shortened_output = []
         char_count = 0
@@ -133,9 +133,7 @@ class InternalEval(commands.Cog):
         eval_context = EvalContext(context_vars, self.locals)
 
         log.trace("Preparing the evaluation by parsing the AST of the code")
-        error = eval_context.prepare_eval(code)
-
-        if error:
+        if error := eval_context.prepare_eval(code):
             log.trace("The code can't be evaluated due to an error")
             await ctx.send(f"```py\n{error}\n```")
             return
@@ -166,7 +164,7 @@ class InternalEval(commands.Cog):
             if len(blocks) > 1:
                 code = "\n".join(block.group("code") for block in blocks)
             else:
-                match = match[0] if len(blocks) == 0 else blocks[0]
+                match = blocks[0] if blocks else match[0]
                 code, block, lang, delim = match.group("code", "block", "lang", "delim")
 
         else:

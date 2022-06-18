@@ -25,12 +25,11 @@ class PrideAnthem(commands.Cog):
         """
         if not genre:
             return random.choice(VIDEOS)
-        else:
-            songs = [song for song in VIDEOS if genre.casefold() in song["genre"]]
-            try:
-                return random.choice(songs)
-            except IndexError:
-                log.info("No videos for that genre.")
+        songs = [song for song in VIDEOS if genre.casefold() in song["genre"]]
+        try:
+            return random.choice(songs)
+        except IndexError:
+            log.info("No videos for that genre.")
 
     @commands.command(name="prideanthem", aliases=("anthem", "pridesong"))
     async def prideanthem(self, ctx: commands.Context, genre: str = None) -> None:
@@ -39,8 +38,7 @@ class PrideAnthem(commands.Cog):
 
         If `genre` is supplied, it will select from that genre only.
         """
-        anthem = self.get_video(genre)
-        if anthem:
+        if anthem := self.get_video(genre):
             await ctx.send(anthem["url"])
         else:
             await ctx.send("I couldn't find a video, sorry!")

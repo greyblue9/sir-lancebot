@@ -261,9 +261,10 @@ class HacktoberStats(commands.Cog):
 
             # If the PR has 'invalid' or 'spam' labels, the PR must be
             # either merged or approved for it to be included
-            if self._has_label(item, ["invalid", "spam"]):
-                if not await self._is_accepted(itemdict):
-                    continue
+            if self._has_label(
+                item, ["invalid", "spam"]
+            ) and not await self._is_accepted(itemdict):
+                continue
 
             # PRs before oct 3 no need to check for topics
             # continue the loop if 'hacktoberfest-accepted' is labelled then
@@ -313,10 +314,10 @@ class HacktoberStats(commands.Cog):
             return False
         if isinstance(labels, str) and any(label["name"].casefold() == labels for label in pr["labels"]):
             return True
-        for item in labels:
-            if any(label["name"].casefold() == item for label in pr["labels"]):
-                return True
-        return False
+        return any(
+            any(label["name"].casefold() == item for label in pr["labels"])
+            for item in labels
+        )
 
     async def _is_accepted(self, pr: dict) -> bool:
         """Check if a PR is merged, approved, or labelled hacktoberfest-accepted."""
@@ -349,11 +350,7 @@ class HacktoberStats(commands.Cog):
         if len(jsonresp2) == 0:  # if PR has no reviews
             return False
 
-        # loop through reviews and check for approval
-        for item in jsonresp2:
-            if item.get("status") == "APPROVED":
-                return True
-        return False
+        return any(item.get("status") == "APPROVED" for item in jsonresp2)
 
     @staticmethod
     def _get_shortname(in_url: str) -> str:
@@ -418,10 +415,7 @@ class HacktoberStats(commands.Cog):
     @staticmethod
     def _contributionator(n: int) -> str:
         """Return "contribution" or "contributions" based on the value of n."""
-        if n == 1:
-            return "contribution"
-        else:
-            return "contributions"
+        return "contribution" if n == 1 else "contributions"
 
     @staticmethod
     def _author_mention_from_context(ctx: commands.Context) -> tuple[str, str]:

@@ -142,7 +142,7 @@ def replace_many(
 
     def _repl(match: re.Match) -> str:
         """Returns replacement depending on `ignore_case` and `match_case`."""
-        word = match.group(0)
+        word = match[0]
         replacement = replacements[word.lower() if ignore_case else word]
 
         if not match_case:

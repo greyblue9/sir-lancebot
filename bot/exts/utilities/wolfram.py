@@ -64,18 +64,16 @@ def custom_cooldown(*ignore: int) -> Callable:
         if ctx.invoked_with == "help":
             # if the invoked command is help we don't want to increase the ratelimits since it's not actually
             # invoking the command/making a request, so instead just check if the user/guild are on cooldown.
-            guild_cooldown = not guildcd.get_bucket(ctx.message).get_tokens() == 0  # if guild is on cooldown
+            guild_cooldown = guildcd.get_bucket(ctx.message).get_tokens() != 0
             # check the message is in a guild, and check user bucket if user is not ignored
-            if ctx.guild and not any(r.id in ignore for r in ctx.author.roles):
-                return guild_cooldown and not usercd.get_bucket(ctx.message).get_tokens() == 0
+            if ctx.guild and all(r.id not in ignore for r in ctx.author.roles):
+                return guild_cooldown and usercd.get_bucket(ctx.message).get_tokens() != 0
             return guild_cooldown
 
         user_bucket = usercd.get_bucket(ctx.message)
 
         if all(role.id not in ignore for role in ctx.author.roles):
-            user_rate = user_bucket.update_rate_limit()
-
-            if user_rate:
+            if user_rate := user_bucket.update_rate_limit():
                 # Can't use api; cause: member limit
                 cooldown = arrow.utcnow().shift(seconds=int(user_rate)).humanize(only_distance=True)
                 message = (
@@ -246,11 +244,7 @@ class Wolfram(Cog):
         if not pages:
             return
 
-        if len(pages) >= 2:
-            page = pages[1]
-        else:
-            page = pages[0]
-
+        page = pages[1] if len(pages) >= 2 else pages[0]
         await send_embed(ctx, page[0], colour=Colours.soft_orange, img_url=page[1])
 
     @wolfram_command.command(name="short", aliases=("sh", "s"))
