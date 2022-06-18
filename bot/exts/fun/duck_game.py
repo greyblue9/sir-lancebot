@@ -238,7 +238,7 @@ class DuckGamesDirector(commands.Cog):
         answer = tuple(sorted(int(m) for m in match.groups()))
 
         # Be forgiving for answers that use indices not on the board.
-        if not all(0 <= n < len(game.board) for n in answer):
+        if any((0 <= n < len(game.board) for n in answer)):
             return
 
         # Also be forgiving for answers that have already been claimed (and avoid penalizing for racing conditions).
@@ -297,13 +297,16 @@ class DuckGamesDirector(commands.Cog):
             key=lambda item: item[1],
             reverse=True,
         )
-        scoreboard = "Final scores:\n\n"
-        scoreboard += "\n".join(f"{member.display_name}: {score}" for member, score in scores)
+        scoreboard = "Final scores:\n\n" + "\n".join(
+            f"{member.display_name}: {score}" for member, score in scores
+        )
+
         scoreboard_embed.description = scoreboard
         await channel.send(embed=scoreboard_embed)
 
-        missed = [ans for ans in game.solutions if ans not in game.claimed_answers]
-        if missed:
+        if missed := [
+            ans for ans in game.solutions if ans not in game.claimed_answers
+        ]:
             missed_text = "Flights everyone missed:\n" + "\n".join(f"{ans}" for ans in missed)
         else:
             missed_text = "All the flights were found!"

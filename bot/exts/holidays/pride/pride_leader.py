@@ -38,11 +38,12 @@ class PrideLeader(commands.Cog):
         embed = discord.Embed(
             color=constants.Colours.soft_red
         )
-        valid_names = []
         pride_leader = pride_leader.title()
-        for name in PRIDE_RESOURCE:
-            if fuzz.ratio(pride_leader, name) >= MINIMUM_FUZZ_RATIO:
-                valid_names.append(name)
+        valid_names = [
+            name
+            for name in PRIDE_RESOURCE
+            if fuzz.ratio(pride_leader, name) >= MINIMUM_FUZZ_RATIO
+        ]
 
         if not valid_names:
             valid_names = ", ".join(PRIDE_RESOURCE)

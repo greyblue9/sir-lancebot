@@ -43,17 +43,15 @@ class MonsterSurvey(Cog):
         for m in vr:
             if id not in vr[m]["votes"] and m == monster:
                 vr[m]["votes"].append(id)
-            else:
-                if id in vr[m]["votes"] and m != monster:
-                    vr[m]["votes"].remove(id)
+            elif id in vr[m]["votes"] and m != monster:
+                vr[m]["votes"].remove(id)
 
     def get_name_by_leaderboard_index(self, n: int) -> str:
         """Return the monster at the specified leaderboard index."""
-        n = n - 1
+        n -= 1
         vr = self.voter_registry
         top = sorted(vr, key=lambda k: len(vr[k]["votes"]), reverse=True)
-        name = top[n] if n >= 0 else None
-        return name
+        return top[n] if n >= 0 else None
 
     @commands.group(
         name="monster",

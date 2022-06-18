@@ -62,8 +62,7 @@ class WTFPython(commands.Cog):
         )[0].split("\n")
 
         for header in list(map(str.strip, table_of_contents)):
-            match = re.search(r"\[▶ (.*)\]\((.*)\)", header)
-            if match:
+            if match := re.search(r"\[▶ (.*)\]\((.*)\)", header):
                 hyper_link = match[0].split("(")[1].replace(")", "")
                 self.headers[match[0]] = f"{BASE_URL}/{hyper_link}"
 

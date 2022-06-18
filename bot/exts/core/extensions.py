@@ -41,7 +41,7 @@ class Extension(commands.Converter):
     async def convert(self, ctx: Context, argument: str) -> str:
         """Fully qualify the name of an extension and ensure it exists."""
         # Special values to reload all extensions
-        if argument == "*" or argument == "**":
+        if argument in {"*", "**"}:
             return argument
 
         argument = argument.lower()
@@ -51,11 +51,7 @@ class Extension(commands.Converter):
         elif (qualified_arg := f"{exts.__name__}.{argument}") in EXTENSIONS:
             return qualified_arg
 
-        matches = []
-        for ext in EXTENSIONS:
-            if argument == unqualify(ext):
-                matches.append(ext)
-
+        matches = [ext for ext in EXTENSIONS if argument == unqualify(ext)]
         if len(matches) > 1:
             matches.sort()
             names = "\n".join(matches)
@@ -108,9 +104,7 @@ class Extensions(commands.Cog):
             await invoke_help_command(ctx)
             return
 
-        blacklisted = "\n".join(UNLOAD_BLACKLIST & set(extensions))
-
-        if blacklisted:
+        if blacklisted := "\n".join(UNLOAD_BLACKLIST & set(extensions)):
             msg = f":x: The following extension(s) may not be unloaded:```\n{blacklisted}\n```"
         else:
             if "*" in extensions or "**" in extensions:

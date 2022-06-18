@@ -32,15 +32,11 @@ class SpookyReact(Cog):
     async def on_message(self, message: discord.Message) -> None:
         """Triggered when the bot sees a message in October."""
         for name, trigger in SPOOKY_TRIGGERS.items():
-            trigger_test = re.search(trigger[0], message.content.lower())
-            if trigger_test:
-                # Check message for bot replies and/or command invocations
-                # Short circuit if they're found, logging is handled in _short_circuit_check
+            if trigger_test := re.search(trigger[0], message.content.lower()):
                 if await self._short_circuit_check(message):
                     return
-                else:
-                    await message.add_reaction(trigger[1])
-                    log.info(f"Added {name!r} reaction to message ID: {message.id}")
+                await message.add_reaction(trigger[1])
+                log.info(f"Added {name!r} reaction to message ID: {message.id}")
 
     async def _short_circuit_check(self, message: discord.Message) -> bool:
         """

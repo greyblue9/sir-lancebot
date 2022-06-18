@@ -60,13 +60,11 @@ def humanize_delta(delta: relativedelta, precision: str = "seconds", max_units: 
         time_strings[-1] = f"{time_strings[-2]} and {time_strings[-1]}"
         del time_strings[-2]
 
-    # If nothing has been found, just make the value 0 precision, e.g. `0 days`.
-    if not time_strings:
-        humanized = _stringify_time_unit(0, precision)
-    else:
-        humanized = ", ".join(time_strings)
-
-    return humanized
+    return (
+        ", ".join(time_strings)
+        if time_strings
+        else _stringify_time_unit(0, precision)
+    )
 
 
 def time_since(past_datetime: datetime.datetime, precision: str = "seconds", max_units: int = 6) -> str:

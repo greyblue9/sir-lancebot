@@ -129,9 +129,7 @@ class Challenges(commands.Cog):
             else:
                 first_kata_div = first_kata_div[0]
 
-            # There are numerous divs before arriving at the id of the kata, which can be used for the link.
-            first_kata_id = first_kata_div.a["href"].split("/")[-1]
-            return first_kata_id
+            return first_kata_div.a["href"].split("/")[-1]
 
     async def kata_information(self, kata_id: str) -> Union[dict, Embed]:
         """
@@ -184,13 +182,12 @@ class Challenges(commands.Cog):
         kata_url = f"https://codewars.com/kata/{kata_information['id']}"
 
         languages = "\n".join(map(str.title, kata_information["languages"]))
-        language_embed = Embed(
+        return Embed(
             title=kata_information["name"],
             description=f"```yaml\nSupported Languages:\n{languages}\n```",
             color=Colours.python_blue,
-            url=kata_url
+            url=kata_url,
         )
-        return language_embed
 
     @staticmethod
     def tags_embed(kata_information: dict) -> Embed:
@@ -202,13 +199,12 @@ class Challenges(commands.Cog):
         kata_url = f"https://codewars.com/kata/{kata_information['id']}"
 
         tags = "\n".join(kata_information["tags"])
-        tags_embed = Embed(
+        return Embed(
             title=kata_information["name"],
             description=f"```yaml\nTags:\n{tags}\n```",
             color=Colours.grass_green,
-            url=kata_url
+            url=kata_url,
         )
-        return tags_embed
 
     @staticmethod
     def miscellaneous_embed(kata_information: dict) -> Embed:

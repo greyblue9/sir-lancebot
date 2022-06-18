@@ -40,7 +40,7 @@ class ScoreboardView(View):
         formatted_string = ""
 
         for current_placement, (user, points) in enumerate(self.points.items()):
-            if current_placement + 1 > 30:
+            if current_placement > 29:
                 break
 
             user = await self.bot.fetch_user(int(user))
@@ -49,13 +49,11 @@ class ScoreboardView(View):
             if (current_placement + 1) % 10 == 0:
                 formatted_string += "⎯⎯⎯⎯⎯⎯⎯⎯\n"
 
-        main_embed = Embed(
+        return Embed(
             title="Winners of the Trivia Night",
             description=formatted_string,
             color=Colours.python_blue,
         )
-
-        return main_embed
 
     async def _create_speed_embed(self) -> Embed:
         """
@@ -68,7 +66,7 @@ class ScoreboardView(View):
         formatted_string = ""
 
         for current_placement, (user, time_taken) in enumerate(self.speed.items()):
-            if current_placement + 1 > 30:
+            if current_placement > 29:
                 break
 
             user = await self.bot.fetch_user(int(user))
@@ -77,12 +75,11 @@ class ScoreboardView(View):
             if (current_placement + 1) % 10 == 0:
                 formatted_string += "⎯⎯⎯⎯⎯⎯⎯⎯\n"
 
-        speed_embed = Embed(
+        return Embed(
             title="Average time taken to answer a question",
             description=formatted_string,
-            color=Colours.python_blue
+            color=Colours.python_blue,
         )
-        return speed_embed
 
     def _get_rank(self, member: Member) -> Embed:
         """
@@ -182,5 +179,5 @@ class Scoreboard:
 
         return (
             await view.create_main_leaderboard(),
-            view if not speed_leaderboard else await view._create_speed_embed()
+            await view._create_speed_embed() if speed_leaderboard else view,
         )

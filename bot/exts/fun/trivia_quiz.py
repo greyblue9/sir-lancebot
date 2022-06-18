@@ -189,9 +189,7 @@ class DynamicQuestionGen:
         """Generate a SI base units conversion question."""
         unit = random.choice(list(cls.UNITS_TO_BASE_UNITS))
 
-        question = q_format.format(
-            unit + " " + cls.UNITS_TO_BASE_UNITS[unit][0]
-        )
+        question = q_format.format(f"{unit} {cls.UNITS_TO_BASE_UNITS[unit][0]}")
         answer = a_format.format(
             cls.UNITS_TO_BASE_UNITS[unit][1]
         )
@@ -531,13 +529,11 @@ class TriviaQuiz(commands.Cog):
     @staticmethod
     def make_error_embed(desc: str) -> discord.Embed:
         """Generate an error embed with the given description."""
-        error_embed = discord.Embed(
+        return discord.Embed(
             colour=Colours.soft_red,
             title=random.choice(NEGATIVE_REPLIES),
             description=desc,
         )
-
-        return error_embed
 
     @quiz_game.command(name="stop")
     async def stop_quiz(self, ctx: commands.Context) -> None:
@@ -574,7 +570,7 @@ class TriviaQuiz(commands.Cog):
     @staticmethod
     async def send_score(channel: discord.TextChannel, player_data: dict) -> None:
         """Send the current scores of players in the game channel."""
-        if len(player_data) == 0:
+        if not player_data:
             await channel.send("No one has made it onto the leaderboard yet.")
             return
 

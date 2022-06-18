@@ -81,8 +81,7 @@ def _set_trace_loggers() -> None:
     Otherwise if the env var begins with a "*",
     the root logger is set to the trace level and other contents are ignored.
     """
-    level_filter = Logging.trace_loggers
-    if level_filter:
+    if level_filter := Logging.trace_loggers:
         if level_filter.startswith("*"):
             logging.getLogger().setLevel(logging.TRACE)
 

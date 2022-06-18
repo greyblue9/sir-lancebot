@@ -65,7 +65,10 @@ class EggheadQuiz(commands.Cog):
 
         msg = await ctx.fetch_message(msg.id)  # Refreshes message
 
-        total_no = sum([len(await r.users().flatten()) for r in msg.reactions]) - len(valid_emojis)  # - bot's reactions
+        total_no = sum(
+            len(await r.users().flatten()) for r in msg.reactions
+        ) - len(valid_emojis)
+
 
         if total_no == 0:
             return await msg.delete()  # To avoid ZeroDivisionError if nobody reacts

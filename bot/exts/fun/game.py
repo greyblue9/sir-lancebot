@@ -419,14 +419,19 @@ class Games(Cog):
             "url": data["url"],
             "description": f"{data['summary']}\n\n" if "summary" in data else "\n",
             "release_date": release_date,
-            "rating": round(data["total_rating"] if "total_rating" in data else 0, 2),
-            "rating_count": data["total_rating_count"] if "total_rating_count" in data else "?",
-            "platforms": ", ".join(platform["name"] for platform in data["platforms"]) if "platforms" in data else "?",
+            "rating": round(data.get("total_rating", 0), 2),
+            "rating_count": data.get("total_rating_count", "?"),
+            "platforms": ", ".join(
+                platform["name"] for platform in data["platforms"]
+            )
+            if "platforms" in data
+            else "?",
             "status": GameStatus(data["status"]).name if "status" in data else "?",
             "age_ratings": rating,
             "made_by": ", ".join(companies),
-            "storyline": data["storyline"] if "storyline" in data else ""
+            "storyline": data.get("storyline", ""),
         }
+
         page = GAME_PAGE.format(**formatting)
 
         return page, url
@@ -499,8 +504,11 @@ class Games(Cog):
         results = []
         for genre in self.genres:
             ratios = [difflib.SequenceMatcher(None, query, genre).ratio()]
-            for word in REGEX_NON_ALPHABET.split(genre):
-                ratios.append(difflib.SequenceMatcher(None, query, word).ratio())
+            ratios.extend(
+                difflib.SequenceMatcher(None, query, word).ratio()
+                for word in REGEX_NON_ALPHABET.split(genre)
+            )
+
             results.append((round(max(ratios), 2), genre))
         return sorted((item for item in results if item[0] >= 0.60), reverse=True)[:4]
 

@@ -56,12 +56,10 @@ class SourceConverter(commands.Converter):
     @staticmethod
     async def convert(ctx: commands.Context, argument: str) -> SourceType:
         """Convert argument into source object."""
-        cog = ctx.bot.get_cog(argument)
-        if cog:
+        if cog := ctx.bot.get_cog(argument):
             return cog
 
-        cmd = ctx.bot.get_command(argument)
-        if cmd:
+        if cmd := ctx.bot.get_command(argument):
             return cmd
 
         raise commands.BadArgument(

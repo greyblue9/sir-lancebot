@@ -124,7 +124,7 @@ def get_resource(file: str) -> list[dict]:
 
 def smoothstep(t: float) -> float:
     """Smooth curve with a zero derivative at 0 and 1, making it useful for interpolating."""
-    return t * t * (3. - 2. * t)
+    return t**2 * (3. - 2. * t)
 
 
 def lerp(t: float, a: float, b: float) -> float:
@@ -215,9 +215,11 @@ class PerlinNoiseFactory(object):
                 self.gradient[grid_point] = self._generate_gradient()
             gradient = self.gradient[grid_point]
 
-            dot = 0
-            for i in range(self.dimension):
-                dot += gradient[i] * (point[i] - grid_point[i])
+            dot = sum(
+                gradient[i] * (point[i] - grid_point[i])
+                for i in range(self.dimension)
+            )
+
             dots.append(dot)
 
         # Interpolate all those dot products together.  The interpolation is
@@ -300,7 +302,7 @@ def create_snek_frame(
     start_y = random.randint(image_margins[Y], image_dimensions[Y] - image_margins[Y])
     points: list[tuple[float, float]] = [(start_x, start_y)]
 
-    for index in range(0, snake_length):
+    for index in range(snake_length):
         angle = perlin_factory.get_plain_noise(
             ((1 / (snake_length + 1)) * (index + 1)) + perlin_lookup_vertical_shift
         ) * ANGLE_RANGE
@@ -479,21 +481,26 @@ class SnakeAndLaddersGame:
         """
         for p in self.players:
             if user == p:
-                await self.channel.send(user.mention + " You are already in the game.", delete_after=10)
+                await self.channel.send(
+                    f"{user.mention} You are already in the game.", delete_after=10
+                )
+
                 return
         if self.state != "waiting":
-            await self.channel.send(user.mention + " You cannot join at this time.", delete_after=10)
+            await self.channel.send(
+                f"{user.mention} You cannot join at this time.", delete_after=10
+            )
+
             return
         if len(self.players) is MAX_PLAYERS:
-            await self.channel.send(user.mention + " The game is full!", delete_after=10)
+            await self.channel.send(f"{user.mention} The game is full!", delete_after=10)
             return
 
         await self._add_player(user)
 
         await self.channel.send(
-            f"**Snakes and Ladders**: {user.mention} has joined the game.\n"
-            f"There are now {str(len(self.players))} players in the game.",
-            delete_after=10
+            f"**Snakes and Ladders**: {user.mention} has joined the game.\nThere are now {len(self.players)} players in the game.",
+            delete_after=10,
         )
 
     async def player_leave(self, user: Union[User, Member]) -> bool:
@@ -512,9 +519,10 @@ class SnakeAndLaddersGame:
                 self.player_tiles.pop(p.id, None)
                 self.round_has_rolled.pop(p.id, None)
                 await self.channel.send(
-                    "**Snakes and Ladders**: " + user.mention + " has left the game.",
-                    delete_after=10
+                    f"**Snakes and Ladders**: {user.mention} has left the game.",
+                    delete_after=10,
                 )
+
 
                 if self.state != "waiting" and len(self.players) == 0:
                     await self.channel.send("**Snakes and Ladders**: The game has been surrendered!")
@@ -522,9 +530,11 @@ class SnakeAndLaddersGame:
                     self._destruct()
 
                 return is_surrendered
-        else:
-            await self.channel.send(user.mention + " You are not in the match.", delete_after=10)
-            return is_surrendered
+        await self.channel.send(
+            f"{user.mention} You are not in the match.", delete_after=10
+        )
+
+        return is_surrendered
 
     async def cancel_game(self) -> None:
         """Cancel the running game."""
@@ -537,12 +547,20 @@ class SnakeAndLaddersGame:
 
         The game cannot be started if the game is in a waiting state.
         """
-        if not user == self.author:
-            await self.channel.send(user.mention + " Only the author of the game can start it.", delete_after=10)
+        if user != self.author:
+            await self.channel.send(
+                f"{user.mention} Only the author of the game can start it.",
+                delete_after=10,
+            )
+
             return
 
-        if not self.state == "waiting":
-            await self.channel.send(user.mention + " The game cannot be started at this time.", delete_after=10)
+        if self.state != "waiting":
+            await self.channel.send(
+                f"{user.mention} The game cannot be started at this time.",
+                delete_after=10,
+            )
+
             return
 
         self.state = "starting"
@@ -648,10 +666,16 @@ class SnakeAndLaddersGame:
     async def player_roll(self, user: Union[User, Member]) -> None:
         """Handle the player's roll."""
         if user.id not in self.player_tiles:
-            await self.channel.send(user.mention + " You are not in the match.", delete_after=10)
+            await self.channel.send(
+                f"{user.mention} You are not in the match.", delete_after=10
+            )
+
             return
         if self.state != "roll":
-            await self.channel.send(user.mention + " You may not roll at this time.", delete_after=10)
+            await self.channel.send(
+                f"{user.mention} You may not roll at this time.", delete_after=10
+            )
+
             return
         if self.round_has_rolled[user.id]:
             return
@@ -689,7 +713,10 @@ class SnakeAndLaddersGame:
             return
 
         # announce winner and exit
-        await self.channel.send("**Snakes and Ladders**: " + winner.mention + " has won the game! :tada:")
+        await self.channel.send(
+            f"**Snakes and Ladders**: {winner.mention} has won the game! :tada:"
+        )
+
         self._destruct()
 
     def _check_winner(self) -> Union[User, Member]:
@@ -701,7 +728,7 @@ class SnakeAndLaddersGame:
 
     def _check_all_rolled(self) -> bool:
         """Check if all members have made their roll."""
-        return all(rolled for rolled in self.round_has_rolled.values())
+        return all(self.round_has_rolled.values())
 
     def _destruct(self) -> None:
         """Clean up the finished game object."""

@@ -91,8 +91,10 @@ class QuestionView(View):
             - text: A string that represents the question description to 'unicodeify'
         """
         return "".join(
-            f"{letter}\u200b" if letter not in ('\n', '\t', '`', 'p', 'y') else letter
-            for idx, letter in enumerate(text)
+            f"{letter}\u200b"
+            if letter not in ('\n', '\t', '`', 'p', 'y')
+            else letter
+            for letter in text
         )
 
     def create_embed(self) -> Embed:
