@@ -1,13 +1,11 @@
-import random
-import aiohttp
 from os import getenv
-from re import compile
+from re import compile, DOTALL
 from urllib.parse import urljoin
 
 from bs4 import BeautifulSoup
 from discord import Color, Embed
 from discord.ext import commands
-from requests import get
+from httpx import AsyncClient
 
 from bot.bot import Bot
 
@@ -16,12 +14,18 @@ class Lyrics(commands.Cog):
     """Cog for the Lyrics command."""
     
     "Used to trim excess newlines in lyrics content."
-    NEWLINE_NORMALIZE_REGEX = compile("\n\s*\n", re.DOTALL)
+    NEWLINE_NORMALIZE_REGEX = compile(
+        "\n\s*\n",
+        DOTALL
+    )
     
     "Used to search the Genius API"
     access_token = getenv("GENIUS_ACCESS_TOKEN")
  
-    @commands.command(name="lyrics", aliases=("ly", "lyr"))
+    @commands.command(
+        name="lyrics",
+        aliases=("ly", "lyr")
+    )
     async def lyrics_command(
         self,
         ctx: commands.Context,
@@ -29,12 +33,14 @@ class Lyrics(commands.Cog):
         query: str=""
     ) -> None:
         """
-        Send lyrics for the top song matching the given query.
+        Send lyrics for the top song matching the given
+        query.
 
-        The results are fetched using the `genius.com` API;
-        the actual lyrics text is obtained by extracting the
-        lyric textual content from the Genius webpage as 
-        indicated by the top matching API result.
+        The results are fetched using the `genius.com` 
+        API; the actual lyrics text is obtained by
+        extracting the lyric textual content from the
+        Genius webpage as indicated by the top matching
+        API result.
         
         Yes, the API actually works this way. There is no
         API endpoint to retrieve the lyrics themselves :D
@@ -46,28 +52,30 @@ class Lyrics(commands.Cog):
         ).split())
         
         if not query.strip():
-          await ctx.reply(
-            "**Error in `lyrics` command**: \n "
-            "You must enter one or more search terms."
-          )
-          return
+            await ctx.reply(
+              "**Error in `lyrics` command**: \n "
+              "You must enter one or more search terms."
+            )
+            return
         
         # Reply with a status message so the user will
         # know their command worked.
         msg = await ctx.reply(
-          f"{ctx.author.mention} Searching for song lyrics"
-          f"matching `{stripped_query}` ...",
+          f"{ctx.author.mention} Searching for "
+          f"song lyrics matching `{stripped_query}` ...",
           delete_after=10,
         )
         
-        url="https://api.genius.com/search"
-        headers={"Authorization": f"bearer {access_token}"}
-        resp = get(
-          url, 
-          params={"q": query},
-          headers=headers,
-        )
-        resp.raise_for_status()
+        headers = {
+          "Authorization": f"bearer {access_token}" 
+        }
+        async with AsyncClient() as client:
+            resp = await client.get(
+              "https://api.genius.com/search",
+              params={"q": query},
+              headers=headers,
+            )
+            resp.raise_for_status()
         
         # Find the first song result.
         results_raw = [
@@ -100,23 +108,27 @@ class Lyrics(commands.Cog):
         )
        
         # Update the status message to let the user know
-        # we are fetching lyrics for this particular song.
+        # we are fetching lyrics for this 
+        # particular song.
         msg = await msg.edit(
           content=f"Fetching lyrics for **\"{title}\"** "
           f"by *{artist}* ..."
         )
         
-        lresp = get(
-          lyrics_page_url,
-          headers={
-            "User-Agent": "Mozilla/5.0 (Windows NT 6.1; "
-                "WOW64) AppleWebKit/537.36 (KHTML, like "
-                "Gecko) Chrome/33.0.1750.154 Safari/537.36",
-            "Referer": "https://genius.com/"
-          }
-        )
-        lresp.raise_for_status()
-        
+        async with AsyncClient() as client:
+            lresp = await client.get(
+                lyrics_page_url,
+                headers={
+                    "User-Agent": 
+                        "Mozilla/5.0 (Windows NT 6.1; "
+                        "WOW64) AppleWebKit/537.36 "
+                        "(KHTML, like Gecko) Chrome/"
+                        "33.0.1750.154 Safari/537.36",
+                    "Referer": "https://genius.com/"
+                }
+            )
+            lresp.raise_for_status()
+
         doc = BeautifulSoup(
           lresp.content,
           features="html.parser"
