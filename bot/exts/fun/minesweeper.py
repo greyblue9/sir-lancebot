@@ -83,10 +83,7 @@ class Minesweeper(commands.Cog):
             for x, cell in enumerate(row):
                 if cell == "number":
                     # calculate bombs near it
-                    bombs = 0
-                    for x_, y_ in self.get_neighbours(x, y):
-                        if board[y_][x_] == "bomb":
-                            bombs += 1
+                    bombs = sum(board[y_][x_] == "bomb" for x_, y_ in self.get_neighbours(x, y))
                     board[y][x] = bombs
         return board
 
@@ -205,9 +202,8 @@ class Minesweeper(commands.Cog):
             for y in range(10)
         ):
             return False
-        else:
-            await self.won(ctx)
-            return True
+        await self.won(ctx)
+        return True
 
     async def reveal_one(
         self,

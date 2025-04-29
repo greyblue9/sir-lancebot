@@ -377,15 +377,12 @@ class Snakes(Cog):
                 file, sep, filename = image["title"].partition(":")
                 filename = filename.replace(" ", "%20")  # Wikipedia returns good data!
 
-                if not filename.startswith("Map"):
-                    if any(ban in filename for ban in banned):
-                        pass
-                    else:
-                        image_list.append(f"{i_url}{filename}")
-                        thumb_list.append(f"{i_url}{filename}?width=100")
-                else:
+                if filename.startswith("Map"):
                     map_list.append(f"{i_url}{filename}")
 
+                elif all(ban not in filename for ban in banned):
+                    image_list.append(f"{i_url}{filename}")
+                    thumb_list.append(f"{i_url}{filename}?width=100")
         snake_info["image_list"] = image_list
         snake_info["map_list"] = map_list
         snake_info["thumb_list"] = thumb_list
@@ -642,11 +639,7 @@ class Snakes(Cog):
             if name is None:
                 name = await Snake.random()
 
-            if isinstance(name, dict):
-                data = name
-            else:
-                data = await self._get_snek(name)
-
+            data = name if isinstance(name, dict) else await self._get_snek(name)
             if data.get("error"):
                 await ctx.send("Could not fetch data from Wikipedia.")
                 return
@@ -880,11 +873,7 @@ class Snakes(Cog):
             snake_name = snake_name.split()[-1]
 
         # If no name is provided, use whoever called the command.
-        if name:
-            user_name = name
-        else:
-            user_name = ctx.author.display_name
-
+        user_name = name or ctx.author.display_name
         # Get the index of the vowel to slice the username at
         user_slice_index = len(user_name)
         for index, char in enumerate(reversed(user_name)):
@@ -1083,7 +1072,7 @@ class Snakes(Cog):
         """
         # Are we searching for anything specific?
         if search:
-            query = search + " snake"
+            query = f"{search} snake"
         else:
             snake = await self._get_snake_name()
             query = snake["name"]

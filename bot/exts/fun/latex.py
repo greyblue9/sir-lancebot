@@ -89,11 +89,7 @@ class Latex(commands.Cog):
     async def _upload_to_pastebin(self, text: str) -> Optional[str]:
         """Uploads `text` to the paste service, returning the url if successful."""
         try:
-            async with self.bot.http_session.post(
-                PASTEBIN_URL + "/documents",
-                data=text,
-                raise_for_status=True
-            ) as response:
+            async with self.bot.http_session.post(f"{PASTEBIN_URL}/documents", data=text, raise_for_status=True) as response:
                 response_json = await response.json()
             if "key" in response_json:
                 return f"{PASTEBIN_URL}/{response_json['key']}.txt?noredirect"

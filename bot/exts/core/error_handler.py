@@ -38,10 +38,7 @@ class CommandErrorHandler(commands.Cog):
     def error_embed(message: str, title: Union[Iterable, str] = ERROR_REPLIES) -> Embed:
         """Build a basic embed with red colour and either a random error title or a title provided."""
         embed = Embed(colour=Colours.soft_red)
-        if isinstance(title, str):
-            embed.title = title
-        else:
-            embed.title = random.choice(title)
+        embed.title = title if isinstance(title, str) else random.choice(title)
         embed.description = message
         return embed
 

@@ -67,21 +67,19 @@ class ScaryMovie(commands.Cog):
         poster = f"https://image.tmdb.org/t/p/original{poster_path}" if poster_path else None
 
         # Get cast names
-        cast = []
-        for actor in movie.get("credits", {}).get("cast", [])[:3]:
-            cast.append(actor.get("name"))
+        cast = [
+            actor.get("name")
+            for actor in movie.get("credits", {}).get("cast", [])[:3]
+        ]
 
         # Get director name
         director = movie.get("credits", {}).get("crew", [])
         if director:
             director = director[0].get("name")
 
-        # Determine the spookiness rating
-        rating = ""
         rating_count = movie.get("vote_average", 0) / 2
 
-        for _ in range(int(rating_count)):
-            rating += ":skull:"
+        rating = "".join(":skull:" for _ in range(int(rating_count)))
         if (rating_count % 1) >= .5:
             rating += ":bat:"
 

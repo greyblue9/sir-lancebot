@@ -64,7 +64,6 @@ def patch_typing() -> None:
         except Forbidden:
             last_403 = datetime.utcnow()
             log.warning("Got a 403 from typing event!")
-            pass
 
     http.HTTPClient.send_typing = honeybadger_type
 
@@ -85,7 +84,6 @@ class FixedPartialMessageConverter(commands.PartialMessageConverter):
     @staticmethod
     def _get_id_matches(ctx: commands.Context, argument: str) -> tuple[int, int, int]:
         """Inserts ctx.channel.id before calling super method if argument is just a messageID."""
-        match = MESSAGE_ID_RE.match(argument)
-        if match:
+        if match := MESSAGE_ID_RE.match(argument):
             argument = f"{ctx.channel.id}-{match.group('message_id')}"
         return commands.PartialMessageConverter._get_id_matches(ctx, argument)

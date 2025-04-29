@@ -92,9 +92,9 @@ def _format_leaderboard_line(rank: int, data: dict[str, Any], *, is_author: bool
     """
     return AOC_TABLE_TEMPLATE.format(
         rank=rank,
-        name=data['name'] if not is_author else f"(You) {data['name']}",
+        name=f"(You) {data['name']}" if is_author else data['name'],
         score=str(data['score']),
-        stars=f"({data['star_1']}, {data['star_2']})"
+        stars=f"({data['star_1']}, {data['star_2']})",
     )
 
 
@@ -135,7 +135,7 @@ def _parse_raw_leaderboard_data(raw_leaderboard_data: dict) -> dict:
     # star view. We need that per star view to compute rank scores per star.
     per_day_star_stats = collections.defaultdict(list)
     for member in raw_leaderboard_data.values():
-        name = member["name"] if member["name"] else f"Anonymous #{member['id']}"
+        name = member["name"] or f"Anonymous #{member['id']}"
         member_id = member["id"]
         leaderboard[member_id] = {"name": name, "score": 0, "star_1": 0, "star_2": 0}
 
@@ -233,7 +233,7 @@ async def _leaderboard_request(url: str, board: str, cookies: dict) -> dict[str,
             raise UnexpectedRedirect(f"redirected unexpectedly to {resp.url} for board `{board}`")
 
         # Every status other than `200` is unexpected, not only 400+
-        if not resp.status == 200:
+        if resp.status != 200:
             log.error(f"Unexpected response `{resp.status}` while fetching leaderboard `{board}`")
             raise UnexpectedResponseStatus(f"status `{resp.status}`")
 
@@ -275,7 +275,7 @@ async def _fetch_leaderboard_data() -> dict[str, Any]:
                 # Get the participants and store their current count.
                 board_participants = raw_data["members"]
                 await _caches.leaderboard_counts.set(leaderboard.id, len(board_participants))
-                participants.update(board_participants)
+                participants |= board_participants
                 break
         else:
             log.error(f"reached 'unreachable' state while fetching board `{leaderboard.id}`.")

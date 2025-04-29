@@ -60,8 +60,7 @@ class EggDecorating(commands.Cog):
         for idx, colour in enumerate(colours):
             if isinstance(colour, discord.Colour):
                 continue
-            value = self.replace_invalid(colour)
-            if value:
+            if value := self.replace_invalid(colour):
                 colours[idx] = discord.Colour(value)
             else:
                 invalid.append(helpers.suppress_links(colour))

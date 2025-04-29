@@ -25,7 +25,7 @@ class Halloweenify(commands.Cog):
         async with ctx.typing():
             # Choose a random character from our list we loaded above and set apart the nickname and image url.
             character = choice(HALLOWEENIFY_DATA["characters"])
-            nickname = "".join(nickname for nickname in character)
+            nickname = "".join(character)
             image = "".join(character[nickname] for nickname in character)
 
             # Build up a Embed

@@ -105,7 +105,9 @@ class Movie(Cog):
     @movies.command(name="genres", aliases=("genre", "g"))
     async def genres(self, ctx: Context) -> None:
         """Show all currently available genres for .movies command."""
-        await ctx.send(f"Current available genres: {', '.join('`' + genre.name + '`' for genre in MovieGenres)}")
+        await ctx.send(
+            f"Current available genres: {', '.join(f'`{genre.name}`' for genre in MovieGenres)}"
+        )
 
     async def get_movies_data(self, client: ClientSession, genre_id: str, page: int) -> list[dict[str, Any]]:
         """Return JSON of TMDB discover request."""
@@ -120,7 +122,7 @@ class Movie(Cog):
             "with_genres": genre_id
         }
 
-        url = BASE_URL + "discover/movie"
+        url = f"{BASE_URL}discover/movie"
 
         # Make discover request to TMDB, return result
         async with client.get(url, params=params) as resp:
@@ -143,7 +145,7 @@ class Movie(Cog):
         """Get Movie by movie ID from TMDB. Return result dictionary."""
         if not isinstance(movie, int):
             raise ValueError("Error while fetching movie from TMDB, movie argument must be integer. ")
-        url = BASE_URL + f"movie/{movie}"
+        url = f"{BASE_URL}movie/{movie}"
 
         async with client.get(url, params=MOVIE_PARAMS) as resp:
             return await resp.json()
@@ -154,11 +156,7 @@ class Movie(Cog):
 
         # Add title + tagline (if not empty)
         text += f"**{movie['title']}**\n"
-        if movie["tagline"]:
-            text += f"{movie['tagline']}\n\n"
-        else:
-            text += "\n"
-
+        text += f"{movie['tagline']}\n\n" if movie["tagline"] else "\n"
         # Add other information
         text += f"**Rating:** {movie['vote_average']}/10 :star:\n"
         text += f"**Release Date:** {movie['release_date']}\n\n"
@@ -183,7 +181,7 @@ class Movie(Cog):
 
         text += f"**Budget:** ${budget}\n"
         text += f"**Revenue:** ${revenue}\n"
-        text += f"**Duration:** {f'{duration[0]} hour(s) {duration[1]} minute(s)'}\n\n"
+        text += f"**Duration:** {duration[0]} hour(s) {duration[1]} minute(s)\n\n"
 
         text += movie["overview"]
 

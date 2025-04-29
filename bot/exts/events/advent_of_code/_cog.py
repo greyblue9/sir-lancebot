@@ -93,7 +93,7 @@ class AdventOfCode(commands.Cog):
         placement_leaderboard = json.loads(leaderboard["placement_leaderboard"])
 
         for member_aoc_info in placement_leaderboard.values():
-            if not member_aoc_info["stars"] == 50:
+            if member_aoc_info["stars"] != 50:
                 # Only give the role to people who have completed all 50 stars
                 continue
 

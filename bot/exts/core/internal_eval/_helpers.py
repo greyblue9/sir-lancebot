@@ -162,8 +162,7 @@ class EvalContext:
         output = []
 
         log.trace(f"Getting output from stdout `{id(self.stdout)}`")
-        stdout_text = self.stdout.getvalue()
-        if stdout_text:
+        if stdout_text := self.stdout.getvalue():
             log.trace("Appending output captured from stdout/print")
             output.append(stdout_text)
 

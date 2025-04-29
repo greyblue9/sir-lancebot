@@ -121,8 +121,7 @@ class ValentineZodiac(commands.Cog):
         """Provides a random counter compatible zodiac sign to the given user's zodiac sign."""
         embed = discord.Embed()
         embed.color = Colours.pink
-        zodiac_check = self.zodiacs.get(zodiac_sign.capitalize())
-        if zodiac_check:
+        if zodiac_check := self.zodiacs.get(zodiac_sign.capitalize()):
             compatible_zodiac = random.choice(self.zodiacs[zodiac_sign.capitalize()])
             emoji1 = random.choice(HEART_EMOJIS)
             emoji2 = random.choice(HEART_EMOJIS)
